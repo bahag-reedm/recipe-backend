@@ -19,11 +19,14 @@ app.use(
   }),
 );
 
+// Swagger Docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Static Route for uploads (images)
+app.use("/images", express.static("images"));
+// API Routes
 app.use("/recipes", recipeRoutes);
 app.use("/orders", orderRoutes);
 app.use("/users", userRoutes);
-
 
 app.listen(PORT, () => {
   console.log(`server is listening on ${PORT}`);

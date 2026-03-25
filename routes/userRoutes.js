@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getUsers, getUserById, createUser, updateUser, deleteUser } from "../controllers/userController.js";
+import { upload } from "../middleware/upload.js";
 
 const router = Router();
 
@@ -68,7 +69,7 @@ router.get("/", getUsers);
  */
 router.get("/:id", getUserById);
 
-router.post("/", createUser);
+router.post("/", upload.single("profileImage"), createUser);
 
 /**
  * @swagger
@@ -103,7 +104,7 @@ router.post("/", createUser);
  *       200:
  *         description: User updated
  */
-router.put("/:id", updateUser);
+router.put("/:id", upload.single("profileImage"), updateUser);
 
 /**
  * @swagger

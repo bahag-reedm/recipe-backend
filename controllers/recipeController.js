@@ -22,7 +22,8 @@ export const getRecipeById = async (req, res) => {
 };
 
 export const createRecipe = async (req, res) => {
-  const { name, category, area, image, userId } = req.body;
+  const { name, category, area, userId } = req.body;
+  const image = req.file ? req.file.path : null;
   try {
     const result = await db.insert(recipes).values({ name, category, area, image, userId }).returning();
     return res.status(201).json(result[0]);
@@ -33,11 +34,12 @@ export const createRecipe = async (req, res) => {
 
 export const updateRecipe = async (req, res) => {
   const { id } = req.params;
-  const { name, category, area, image } = req.body;
+  const { name, category, area } = req.body;
+  const image = req.file ? req.file.path : undefined;
   try {
     const result = await db
       .update(recipes)
-      .set({ name, category, area, image })
+      .set({ name, category, area, ...(image && { image }) })
       .where(eq(recipes.id, parseInt(id)))
       .returning();
     return res.json(result[0]);

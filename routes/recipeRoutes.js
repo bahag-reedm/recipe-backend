@@ -6,6 +6,7 @@ import {
   updateRecipe,
   deleteRecipe,
 } from "../controllers/recipeController.js";
+import { upload } from "../middleware/upload.js";
 
 const router = Router();
 
@@ -73,7 +74,7 @@ router.get("/:id", getRecipeById);
  *       201:
  *         description: Recipe created
  */
-router.post("/", createRecipe);
+router.post("/", upload.single("image"), createRecipe);
 
 /**
  * @swagger
@@ -106,7 +107,7 @@ router.post("/", createRecipe);
  *       200:
  *         description: Recipe updated
  */
-router.put("/:id", updateRecipe);
+router.put("/:id", upload.single("image"), updateRecipe);
 
 /**
  * @swagger
