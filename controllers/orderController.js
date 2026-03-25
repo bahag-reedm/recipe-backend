@@ -1,10 +1,11 @@
-import { pool } from "../pool.js";
+import { eq } from "drizzle-orm";
+import { db } from "../db/db.js";
+import { orders } from "../db/schema.js";
 
 export const getOrders = async (req, res) => {
   try {
-    const orders = await pool.query("SELECT * FROM orders");
-    console.log(orders);
-    return res.json(orders.rows);
+    const result = await db.select().from(orders);
+    return res.json(result);
   } catch (err) {
     return res.json(err.message);
   }
@@ -13,9 +14,8 @@ export const getOrders = async (req, res) => {
 export const getOrderById = async (req, res) => {
   const { id } = req.params;
   try {
-    const orders = await pool.query(`SELECT * FROM orders WHERE id=$1`, [id]);
-    console.log(orders);
-    return res.json(orders.rows);
+    const result = await db.select().from(orders).where(eq(orders.id, parseInt(id)));
+    return res.json(result);
   } catch (err) {
     return res.json(err.message);
   }

@@ -1,65 +1,57 @@
-import { pool } from "../pool.js";
+import { eq } from "drizzle-orm";
+import { db } from "../db/db.js";
+import { recipes } from "../db/schema.js";
 
 export const getRecipes = async (req, res) => {
   try {
-    const recipes = await pool.query("SELECT * FROM recipes");
-    console.log(recipes.rows);
-    return res.json(recipes.rows);
+    const result = await db.select().from(recipes);
+    return res.json(result);
   } catch (err) {
     return res.json(err.message);
   }
 };
 
 export const getRecipeById = async (req, res) => {
-  let { id } = req.params;
+  const { id } = req.params;
   try {
-    const recipes = await pool.query(`SELECT * FROM recipes WHERE id=$1`, [id]);
-    return res.json(recipes.rows);
+    const result = await db.select().from(recipes).where(eq(recipes.id, parseInt(id)));
+    return res.json(result);
   } catch (err) {
     return res.json(err.message);
   }
 };
 
 export const createRecipe = async (req, res) => {
-  const { name, category, area, image } = req.body;
-  console.log("here");
+  const { name, category, area, image, userId } = req.body;
   try {
-    const result = await pool.query(
-      `INSERT INTO recipes (name, category, area, image) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [name, category, area, image],
-    );
-    console.log(result);
-    return res.status(201).json(result.rows[0]);
+    const result = await db.insert(recipes).values({ name, category, area, image, userId }).returning();
+    return res.status(201).json(result[0]);
   } catch (err) {
-    console.log(err);
     return res.json(err.message);
   }
 };
 
-// export const updateRecipe = (req, res) => {
-//   let { id } = req.params;
-//   const index = recipes.meals.findIndex((e) => e.idMeal === parseInt(id));
-//
-//   if (index === -1) {
-//     return res.status(404).send({ message: "Recipe not found" });
-//   }
-//
-//   recipes.meals[index] = {
-//     ...recipes.meals[index],
-//     ...req.body,
-//     id: parseInt(id),
-//   };
-//   res.send(recipes.meals[index]);
-// };
-//
-// export const deleteRecipe = (req, res) => {
-//   let { id } = req.params;
-//   const index = recipes.meals.findIndex((e) => e.idMeal === parseInt(id));
-//
-//   if (index === -1) {
-//     return res.status(404).send({ message: "Recipe not found" });
-//   }
-//
-//   const deletedRecipe = recipes.meals.splice(index, 1);
-//   res.send(deletedRecipe[0]);
-// };
+export const updateRecipe = async (req, res) => {
+  const { id } = req.params;
+  const { name, category, area, image } = req.body;
+  try {
+    const result = await db
+      .update(recipes)
+      .set({ name, category, area, image })
+      .where(eq(recipes.id, parseInt(id)))
+      .returning();
+    return res.json(result[0]);
+  } catch (err) {
+    return res.json(err.message);
+  }
+};
+
+export const deleteRecipe = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.delete(recipes).where(eq(recipes.id, parseInt(id)));
+    return res.status(204).send();
+  } catch (err) {
+    return res.json(err.message);
+  }
+};
