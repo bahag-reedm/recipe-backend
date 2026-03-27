@@ -24,28 +24,25 @@ export const getUserById = async (req, res) => {
   }
 };
 
-export const createUser = async (req, res) => {
-  const { username, password, email, firstName, lastName } = req.body;
-  const profileImage = req.file ? req.file.path : null;
-  try {
-    const result = await db
-      .insert(users)
-      .values({ username, password, email, firstName, lastName, profileImage })
-      .returning();
-    return res.status(201).json(result[0]);
-  } catch (err) {
-    return res.json(err.message);
-  }
-};
-
 export const updateUser = async (req, res) => {
   const { id } = req.params;
   const { username, password, email, firstName, lastName } = req.body;
+
+  if (req.token.id !== parseInt(id)) {
+    return res.status(403).json({ message: "Not authorized to update this user." });
+  }
   const profileImage = req.file ? req.file.path : undefined;
   try {
     const result = await db
       .update(users)
-      .set({ username, password, email, firstName, lastName, ...(profileImage && { profileImage }) })
+      .set({
+        username,
+        password,
+        email,
+        firstName,
+        lastName,
+        ...(profileImage && { profileImage }),
+      })
       .where(eq(users.id, parseInt(id)))
       .returning();
     return res.json(result[0]);
