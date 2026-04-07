@@ -7,6 +7,7 @@ import {
   deleteRecipe,
 } from "../controllers/recipeController.js";
 import { upload } from "../middleware/upload.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
@@ -45,7 +46,7 @@ router.get("/", getRecipes);
  *       200:
  *         description: A single recipe
  */
-router.get("/:id", getRecipeById);
+router.get("/:id", protect, getRecipeById);
 
 /**
  * @swagger

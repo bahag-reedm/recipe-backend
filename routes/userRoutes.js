@@ -1,6 +1,12 @@
 import { Router } from "express";
-import { getUsers, getUserById, createUser, updateUser, deleteUser } from "../controllers/userController.js";
+import {
+  getUsers,
+  updateUser,
+  getUserById,
+  deleteUser,
+} from "../controllers/userController.js";
 import { upload } from "../middleware/upload.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
@@ -25,34 +31,6 @@ router.get("/", getUsers);
 
 /**
  * @swagger
- * /users:
- *   post:
- *     summary: Create a new user
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [username, password, email]
- *             properties:
- *               username:
- *                 type: string
- *               password:
- *                 type: string
- *               email:
- *                 type: string
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *     responses:
- *       201:
- *         description: User created
- */
-/**
- * @swagger
  * /users/{id}:
  *   get:
  *     summary: Get a user by ID with their recipes
@@ -68,8 +46,6 @@ router.get("/", getUsers);
  *         description: A user with their recipes
  */
 router.get("/:id", getUserById);
-
-router.post("/", upload.single("profileImage"), createUser);
 
 /**
  * @swagger
@@ -104,7 +80,7 @@ router.post("/", upload.single("profileImage"), createUser);
  *       200:
  *         description: User updated
  */
-router.put("/:id", upload.single("profileImage"), updateUser);
+router.put("/:id", protect, upload.single("profileImage"), updateUser);
 
 /**
  * @swagger

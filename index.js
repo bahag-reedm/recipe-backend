@@ -6,12 +6,15 @@ import { swaggerSpec } from "./swagger.js";
 import recipeRoutes from "./routes/recipeRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import { logger, errorHandler } from "./middleware/middleware.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());
+app.use(logger);
 
 app.use(
   express.urlencoded({
@@ -27,6 +30,9 @@ app.use("/images", express.static("images"));
 app.use("/recipes", recipeRoutes);
 app.use("/orders", orderRoutes);
 app.use("/users", userRoutes);
+app.use("/auth", authRoutes);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`server is listening on ${PORT}`);
